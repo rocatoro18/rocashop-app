@@ -1,9 +1,52 @@
-// 1 - STATE DEL PROVIDER
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
+// 3 - STATENOTIFIERPROVIDER - CONSUME AFUERA
+// AUTODISPOSE PARA LIMPIAR EL LOGIN FORM PROVIDER CUANDO YA NO SE USE
+final loginFormProvider =
+    StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
+  return LoginFormNotifier();
+});
+
+// 2 - COMO IMPLEMENTAR UN NOTIFIER
+class LoginFormNotifier extends StateNotifier<LoginFormState> {
+  // EN EL SUPER VA LA CREACION DEL ESTADO INICIAL, TIENE QUE SER SINCRONO
+  LoginFormNotifier() : super(LoginFormState());
+
+  onEmailChanged(String value) {
+    final newEmail = Email.dirty(value);
+    state = state.copyWith(
+        email: newEmail, isValid: Formz.validate([newEmail, state.password]));
+  }
+
+  onPasswordChanged(String value) {
+    final newPassword = Password.dirty(value);
+    state = state.copyWith(
+        password: newPassword,
+        isValid: Formz.validate([newPassword, state.email]));
+  }
+
+  onFormSubmit() {
+    _touchEveryField();
+    if (!state.isValid) return;
+    print(state);
+  }
+
+  // ENSUCIAR EL INPUT PARA HACER LA VALIDACION CORRECTAMENTE
+  _touchEveryField() {
+    final email = Email.dirty(state.email.value);
+    final password = Password.dirty(state.password.value);
+
+    state = state.copyWith(
+        isFormPosted: true,
+        email: email,
+        password: password,
+        isValid: Formz.validate([email, password]));
+  }
+}
+
+// 1 - STATE DEL PROVIDER
 // TAMBIEN SE PUEDE UTILIZAR EQUATABLE PARA COMPARAR EL ESTADO ANTERIOR DEL OBJETO
 class LoginFormState {
   final bool isPosting;
@@ -45,47 +88,3 @@ class LoginFormState {
     ''';
   }
 }
-
-// 2 - COMO IMPLEMENTAR UN NOTIFIER
-class LoginFormNotifier extends StateNotifier<LoginFormState> {
-  // EN EL SUPER VA LA CREACION DEL ESTADO INICIAL, TIENE QUE SER SINCRONO
-  LoginFormNotifier() : super(LoginFormState());
-
-  onEmailChanged(String value) {
-    final newEmail = Email.dirty(value);
-    state = state.copyWith(
-        email: newEmail, isValid: Formz.validate([newEmail, state.password]));
-  }
-
-  onPasswordChanged(String value) {
-    final newPassword = Password.dirty(value);
-    state = state.copyWith(
-        password: newPassword,
-        isValid: Formz.validate([newPassword, state.email]));
-  }
-
-  onFormSubmit() {
-    _touchEveryField();
-    if (!state.isValid) return;
-    print(state);
-  }
-
-  // ENSUCIAR EL INPUT PARA HACER LA VALIDACION CORRECTAMENTE
-  _touchEveryField() {
-    final email = Email.dirty(state.email.value);
-    final password = Password.dirty(state.password.value);
-
-    state = state.copyWith(
-        isFormPosted: true,
-        email: email,
-        password: password,
-        isValid: Formz.validate([email, password]));
-  }
-}
-
-// 3 - STATENOTIFIERPROVIDER - CONSUME AFUERA
-// AUTODISPOSE PARA LIMPIAR EL LOGIN FORM PROVIDER CUANDO YA NO SE USE
-final loginFormProvider =
-    StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
-  return LoginFormNotifier();
-});
