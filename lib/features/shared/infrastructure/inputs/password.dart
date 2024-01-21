@@ -15,6 +15,11 @@ class Password extends FormzInput<String, PasswordError> {
   // Call super.dirty to represent a modified form input.
   const Password.dirty(String value) : super.dirty(value);
 
+  // Método estático para convertir un String en un objeto Password
+  static Password fromString(String value) {
+    return Password.dirty(value);
+  }
+
   String? get errorMessage {
     if (isValid || isPure) return null;
 
