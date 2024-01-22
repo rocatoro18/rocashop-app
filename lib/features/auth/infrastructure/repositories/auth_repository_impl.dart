@@ -6,7 +6,7 @@ class AuthRepositoryImpl extends AuthRepository {
   final AuthDataSource dataSource;
 
   // AuthDataSourceImpl(); OPCION DE REPOSITORIO POR DEFECTO
-  AuthRepositoryImpl(AuthDataSource? dataSource)
+  AuthRepositoryImpl({AuthDataSource? dataSource})
       : dataSource = dataSource ?? AuthDataSourceImpl();
 
   @override
