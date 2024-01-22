@@ -15,11 +15,37 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepository authRepository;
   AuthNotifier({required this.authRepository}) : super(AuthState());
 
-  void loginUser(String email, String password) async {}
+  void loginUser(String email, String password) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    try {
+      final user = await authRepository.login(email, password);
+      _setLoggedUser(user);
+    } on WrongCredentials {
+      logout('Credenciales no son correctas');
+    } catch (e) {
+      logout('Error no controlado');
+    }
+  }
 
   void registerUser(String email, String password) async {}
 
   void checkAuthStatus() async {}
+
+  Future<void> logout([String? errorMessage]) async {
+    // TODO: limpiar token
+    state = state.copyWith(
+        authStatus: AuthStatus.notAuthenticated,
+        user: null,
+        errorMessage: errorMessage);
+  }
+
+  void _setLoggedUser(User user) {
+    // TODO: NECESITO GUARDAR EL TOKEN FISICAMENTE EN EL DISPOSITIVO PARA QUE SEA PERSISTENTE
+    state = state.copyWith(
+      user: user,
+      authStatus: AuthStatus.authenticated,
+    );
+  }
 }
 
 class AuthState {
@@ -33,7 +59,7 @@ class AuthState {
       this.errorMessage = ''});
 
   AuthState copyWith(
-          AuthStatus? authStatus, User? user, String? errorMessage) =>
+          {AuthStatus? authStatus, User? user, String? errorMessage}) =>
       AuthState(
           authStatus: authStatus ?? this.authStatus,
           user: user ?? this.user,
