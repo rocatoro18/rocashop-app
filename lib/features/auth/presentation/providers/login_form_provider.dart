@@ -1,18 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
+import 'package:teslo_shop/features/auth/presentation/providers/auth_provider.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
 // 3 - STATENOTIFIERPROVIDER - CONSUME AFUERA
 // AUTODISPOSE PARA LIMPIAR EL LOGIN FORM PROVIDER CUANDO YA NO SE USE
 final loginFormProvider =
     StateNotifierProvider.autoDispose<LoginFormNotifier, LoginFormState>((ref) {
-  return LoginFormNotifier();
+  // ENLAZAR AUTH_PROVIDER CON LOGIN_FORM_PROVIDER
+  final loginUserCallback = ref.watch(authProvider.notifier).loginUser;
+  // AQUI SE LLAMA EL CASO DE USO
+  return LoginFormNotifier(loginUserCallback: loginUserCallback);
 });
 
 // 2 - COMO IMPLEMENTAR UN NOTIFIER
 class LoginFormNotifier extends StateNotifier<LoginFormState> {
+  // NOS ASEGURAMOS DE RECIBIR ESA FUNCION (CASO DE USO A LLAMAR PARA REALIZAR LA AUTENTICACION)
+  final Function(String, String) loginUserCallback;
   // EN EL SUPER VA LA CREACION DEL ESTADO INICIAL, TIENE QUE SER SINCRONO
-  LoginFormNotifier() : super(LoginFormState());
+  LoginFormNotifier({required this.loginUserCallback})
+      : super(LoginFormState());
 
   onEmailChanged(String value) {
     final newEmail = Email.dirty(value);
@@ -27,10 +34,10 @@ class LoginFormNotifier extends StateNotifier<LoginFormState> {
         isValid: Formz.validate([newPassword, state.email]));
   }
 
-  onFormSubmit() {
+  onFormSubmit() async {
     _touchEveryField();
     if (!state.isValid) return;
-    print(state);
+    await loginUserCallback(state.email.value, state.password.value);
   }
 
   // ENSUCIAR EL INPUT PARA HACER LA VALIDACION CORRECTAMENTE
