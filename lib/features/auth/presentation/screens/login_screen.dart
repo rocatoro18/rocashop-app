@@ -98,9 +98,10 @@ class _LoginForm extends ConsumerWidget {
               child: CustomFilledButton(
                 text: 'Ingresar',
                 buttonColor: Colors.black,
-                onPressed: () {
-                  ref.read(loginFormProvider.notifier).onFormSubmit();
-                },
+                // HABILITAR/ DESHABILITAR EL BOTON INGRESAR DEPENDIENDO DEL ESTADO DEL POSTEO
+                onPressed: loginForm.isPosting
+                    ? null
+                    : ref.read(loginFormProvider.notifier).onFormSubmit,
               )),
           const Spacer(flex: 2),
           Row(
