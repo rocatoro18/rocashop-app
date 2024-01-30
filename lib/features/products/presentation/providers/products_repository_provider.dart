@@ -4,6 +4,7 @@ import 'package:teslo_shop/features/products/domain/domain.dart';
 import 'package:teslo_shop/features/products/infrastructure/datasources/products_datasource_impl.dart';
 import 'package:teslo_shop/features/products/infrastructure/repositories/products_repository_impl.dart';
 
+// PROVIDER DE SOLO LECTURA - READONLY? Y SE VA A UTILIZAR EN EL PRODUCTS PROVIDER
 final productsRepositoryProvider = Provider<ProductsRepository>((ref) {
   final accessToken = ref.watch(authProvider).user?.token ?? '';
 
