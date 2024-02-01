@@ -1,7 +1,81 @@
 // ESTO TAMBIEN SE PUEDE HACER CON UN MONTON DE STATE PROVIDER
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:formz/formz.dart';
+import 'package:teslo_shop/features/products/domain/domain.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
+// MANTENER ESTADO Y SUS CAMBIOS Y EMITE LA DATA QUE TIENE QUE SER PROCESADA
+class ProductFormNotifier extends StateNotifier<ProductFormState> {
+  final void Function(Map<String, dynamic> productLike)? onSubmitCallback;
+  ProductFormNotifier({this.onSubmitCallback, required Product product})
+      : super(ProductFormState(
+          id: product.id,
+          title: Title.dirty(product.title),
+          slug: Slug.dirty(product.slug),
+          price: Price.dirty(product.price),
+          inStock: Stock.dirty(product.stock),
+          sizes: product.sizes,
+          gender: product.gender,
+          description: product.description,
+          tags: product.tags.join(', '),
+          images: product.images,
+        ));
+
+  void onTitleChanged(String value) {
+    state = state.copyWith(
+        title: Title.dirty(value),
+        // SOLO SE PONEN LOS INPUTS QUE TIENEN ESTAS REGLAS DE VALIDACION (FORMZ)
+        // ESTO REGRESA UN BOOLEANO
+        isFormValid: Formz.validate([
+          Title.dirty(value),
+          Slug.dirty(state.slug.value),
+          Price.dirty(state.price.value),
+          Stock.dirty(state.inStock.value)
+        ]));
+  }
+
+  void onSlugChanged(String value) {
+    state = state.copyWith(
+        slug: Slug.dirty(value),
+        // SOLO SE PONEN LOS INPUTS QUE TIENEN ESTAS REGLAS DE VALIDACION (FORMZ)
+        // ESTO REGRESA UN BOOLEANO
+        isFormValid: Formz.validate([
+          Title.dirty(state.title.value),
+          Slug.dirty(value),
+          Price.dirty(state.price.value),
+          Stock.dirty(state.inStock.value)
+        ]));
+  }
+
+  void onPriceChanged(double value) {
+    state = state.copyWith(
+        price: Price.dirty(value),
+        // SOLO SE PONEN LOS INPUTS QUE TIENEN ESTAS REGLAS DE VALIDACION (FORMZ)
+        // ESTO REGRESA UN BOOLEANO
+        isFormValid: Formz.validate([
+          Title.dirty(state.title.value),
+          Slug.dirty(state.slug.value),
+          Price.dirty(value),
+          Stock.dirty(state.inStock.value)
+        ]));
+  }
+
+  void onStockChanged(int value) {
+    state = state.copyWith(
+        inStock: Stock.dirty(value),
+        // SOLO SE PONEN LOS INPUTS QUE TIENEN ESTAS REGLAS DE VALIDACION (FORMZ)
+        // ESTO REGRESA UN BOOLEANO
+        isFormValid: Formz.validate([
+          Title.dirty(state.title.value),
+          Slug.dirty(state.slug.value),
+          Price.dirty(state.price.value),
+          Stock.dirty(value)
+        ]));
+  }
+}
+
+// ESTADO DEL PRODUCT FORM PROVIDER
 class ProductFormState {
   final bool isFormValid;
   final String? id;
