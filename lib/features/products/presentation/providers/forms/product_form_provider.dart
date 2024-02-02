@@ -6,6 +6,17 @@ import 'package:teslo_shop/config/constants/environment.dart';
 import 'package:teslo_shop/features/products/domain/domain.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
+final productFormProvider = StateNotifierProvider.autoDispose
+    .family<ProductFormNotifier, ProductFormState, Product>((ref, product) {
+  // createUpdateCallback ES ES PARA ACTUALIZAR LOS CAMBIOS
+  // EN LA PANTALLA DE TODOS LOS PRODUCTOS
+  // TODO: createUpdateCallback
+  return ProductFormNotifier(
+    product: product,
+    // TODO: onSubmitCallback: createUpdateCallback
+  );
+});
+
 // MANTENER ESTADO Y SUS CAMBIOS Y EMITE LA DATA QUE TIENE QUE SER PROCESADA
 class ProductFormNotifier extends StateNotifier<ProductFormState> {
   final void Function(Map<String, dynamic> productLike)? onSubmitCallback;
