@@ -96,7 +96,7 @@ class _ProductInformation extends ConsumerWidget {
             onChanged: (value) => ref
                 .read(productFormProvider(product).notifier)
                 // CASTEAR A DOUBLE
-                .onPriceChanged(double.tryParse(value) ?? 0),
+                .onPriceChanged(double.tryParse(value) ?? -1),
             errorMessage: productForm.price.errorMessage,
           ),
           const SizedBox(height: 15),
@@ -113,7 +113,7 @@ class _ProductInformation extends ConsumerWidget {
             onChanged: (value) => ref
                 .read(productFormProvider(product).notifier)
                 // PARSEAR A INT
-                .onStockChanged(int.tryParse(value) ?? 0),
+                .onStockChanged(int.tryParse(value) ?? -1),
             errorMessage: productForm.inStock.errorMessage,
           ),
           CustomProductField(
