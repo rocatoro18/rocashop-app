@@ -37,7 +37,8 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
   Future<bool> onFormSubmit() async {
     _touchedEverything();
     if (!state.isFormValid) return false;
-    if (onSubmitCallback == null) return false;
+    // TODO: PENDIENTE
+    //if (onSubmitCallback == null) return false;
     final productLike = {
       'id': state.id,
       'title': state.title.value,
@@ -53,7 +54,9 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
               image.replaceAll('${Environment.apiUrl}/files/product/', ''))
           .toList()
     };
+    print(productLike);
     return true;
+
     // TODO: LLAMAR ONSUBMIT CALLBACK
   }
 
