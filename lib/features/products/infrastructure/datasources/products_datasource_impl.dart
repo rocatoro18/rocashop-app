@@ -12,6 +12,28 @@ class ProductsDatasourceImpl extends ProductsDatasource {
             baseUrl: Environment.apiUrl,
             headers: {'Authorization': 'Bearer $accessToken'}));
 
+  Future<List<String>> _uploadPhotos(List<String> photos) async {
+    // LISTADO DE TODAS LAS FOTOS QUE TIENEN UN SLASH EN EL NOMBRE,
+    // SI TIENE UN SLASH EN EL NOMBRE GENERALMENTE VIENE DEL FILE SYSTEM
+    final photosToUpload =
+        photos.where((element) => element.contains('/')).toList();
+
+    // TODAS LAS FOTOS QUE NO CONTENGAN ESE SLASH
+    final photosToIgnore =
+        photos.where((element) => !element.contains('/')).toList();
+
+    // TODO: CREAR UNA SERIE DE FUTURES DE CARGA DE IMAGENES
+    final List<Future<String>> uploadJob = [];
+
+    final newImages = await Future.wait(uploadJob);
+
+    // RETURN CON FOTOS INICIALES
+    return [
+      ...photosToIgnore,
+      ...newImages,
+    ];
+  }
+
   @override
   Future<Product> createUpdateProduct(Map<String, dynamic> productLike) async {
     try {
@@ -20,6 +42,7 @@ class ProductsDatasourceImpl extends ProductsDatasource {
       final String url =
           (productId == null) ? '/products' : '/products/$productId';
       productLike.remove('id');
+      productLike['images'] = await _uploadPhotos(productLike['images']);
       final response = await dio.request(url,
           data: productLike, options: Options(method: method));
       final product = ProductMapper.jsonToEntity(response.data);
