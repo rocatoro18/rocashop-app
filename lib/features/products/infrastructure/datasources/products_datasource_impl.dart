@@ -12,6 +12,22 @@ class ProductsDatasourceImpl extends ProductsDatasource {
             baseUrl: Environment.apiUrl,
             headers: {'Authorization': 'Bearer $accessToken'}));
 
+  // PROCESO PARA SUBIR UNA IMAGEN
+  Future<String> _uploadFile(String path) async {
+    try {
+      final fileName = path.split('/').last;
+      // SE CREAR OBJETO DE LA DATA
+      final FormData data = FormData.fromMap(
+          {'file': MultipartFile.fromFileSync(path, filename: fileName)});
+
+      final response = await dio.post('/files/product', data: data);
+
+      return response.data['image'];
+    } catch (e) {
+      throw Exception();
+    }
+  }
+
   Future<List<String>> _uploadPhotos(List<String> photos) async {
     // LISTADO DE TODAS LAS FOTOS QUE TIENEN UN SLASH EN EL NOMBRE,
     // SI TIENE UN SLASH EN EL NOMBRE GENERALMENTE VIENE DEL FILE SYSTEM
@@ -23,7 +39,9 @@ class ProductsDatasourceImpl extends ProductsDatasource {
         photos.where((element) => !element.contains('/')).toList();
 
     // TODO: CREAR UNA SERIE DE FUTURES DE CARGA DE IMAGENES
-    final List<Future<String>> uploadJob = [];
+    // SUBIR IMAGEN POR IMAGEN
+    final List<Future<String>> uploadJob =
+        photosToUpload.map(_uploadFile).toList();
 
     final newImages = await Future.wait(uploadJob);
 
@@ -42,9 +60,14 @@ class ProductsDatasourceImpl extends ProductsDatasource {
       final String url =
           (productId == null) ? '/products' : '/products/$productId';
       productLike.remove('id');
+      // SUBIDA DE FOTOS, REGRESAMOS EL NUEVO LISTADO DE IMAGENES
+      // ADAPTADAS AL BACKEND (SIN NOMBRES LARGOS Y GENERICOS)
       productLike['images'] = await _uploadPhotos(productLike['images']);
-      final response = await dio.request(url,
-          data: productLike, options: Options(method: method));
+      final response = await dio.request(
+        url,
+        data: productLike,
+        options: Options(method: method),
+      );
       final product = ProductMapper.jsonToEntity(response.data);
       return product;
     } catch (e) {
