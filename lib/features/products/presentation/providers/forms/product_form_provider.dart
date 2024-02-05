@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 import 'package:teslo_shop/config/constants/environment.dart';
 import 'package:teslo_shop/features/products/domain/domain.dart';
+import 'package:teslo_shop/features/products/presentation/providers/providers.dart';
 import 'package:teslo_shop/features/shared/shared.dart';
 
 final productFormProvider = StateNotifierProvider.autoDispose
@@ -11,15 +12,18 @@ final productFormProvider = StateNotifierProvider.autoDispose
   // createUpdateCallback ES ES PARA ACTUALIZAR LOS CAMBIOS
   // EN LA PANTALLA DE TODOS LOS PRODUCTOS
   // TODO: createUpdateCallback
+  final createUpdateCallback =
+      ref.watch(productsRepositoryProvider).createUpdateProduct;
   return ProductFormNotifier(
-    product: product,
-    // TODO: onSubmitCallback: createUpdateCallback
-  );
+      product: product,
+      // TODO: onSubmitCallback: createUpdateCallback
+      onSubmitCallback: createUpdateCallback);
 });
 
 // MANTENER ESTADO Y SUS CAMBIOS Y EMITE LA DATA QUE TIENE QUE SER PROCESADA
 class ProductFormNotifier extends StateNotifier<ProductFormState> {
-  final void Function(Map<String, dynamic> productLike)? onSubmitCallback;
+  final Future<Product> Function(Map<String, dynamic> productLike)?
+      onSubmitCallback;
   ProductFormNotifier({this.onSubmitCallback, required Product product})
       : super(ProductFormState(
           id: product.id,
@@ -38,7 +42,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
     _touchedEverything();
     if (!state.isFormValid) return false;
     // TODO: PENDIENTE
-    //if (onSubmitCallback == null) return false;
+    if (onSubmitCallback == null) return false;
     final productLike = {
       'id': state.id,
       'title': state.title.value,
@@ -55,9 +59,15 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
           .toList()
     };
     //print(productLike);
-    return true;
+    //return true;
 
     // TODO: LLAMAR ONSUBMIT CALLBACK
+    try {
+      await onSubmitCallback!(productLike);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   // METODO PARA FORZAR QUE TODO HAYA SIDO MANIPULADO
