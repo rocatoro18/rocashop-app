@@ -17,32 +17,36 @@ class ProductScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productState = ref.watch(productProvider(productId));
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Editar Producto'),
-        actions: [
-          IconButton(
-              onPressed: () {}, icon: const Icon(Icons.camera_alt_outlined))
-        ],
-      ),
-      body: productState.isLoading
-          ? const FullScreenLoader()
-          : _ProductView(product: productState.product!),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (productState.product == null) return;
-          ref
-              .read(productFormProvider(productState.product!).notifier)
-              .onFormSubmit()
-              // NECESARIO HACER ASI EL FUTURE EN ESTOS CASOS
-              // DEBIDO AL CONTEXT... ETC
-              // EL THEN TOMA EL NUEVO VALOR DEL BUILDCONTEXT
-              .then((value) {
-            if (!value) return;
-            showSnackbar(context);
-          });
-        },
-        child: const Icon(Icons.save_as_outlined),
+    return GestureDetector(
+      // QUITAR EL TECLADO AL NO USARLO MAS, (HACIENDO CLICK AFUERA)
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Editar Producto'),
+          actions: [
+            IconButton(
+                onPressed: () {}, icon: const Icon(Icons.camera_alt_outlined))
+          ],
+        ),
+        body: productState.isLoading
+            ? const FullScreenLoader()
+            : _ProductView(product: productState.product!),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            if (productState.product == null) return;
+            ref
+                .read(productFormProvider(productState.product!).notifier)
+                .onFormSubmit()
+                // NECESARIO HACER ASI EL FUTURE EN ESTOS CASOS
+                // DEBIDO AL CONTEXT... ETC
+                // EL THEN TOMA EL NUEVO VALOR DEL BUILDCONTEXT
+                .then((value) {
+              if (!value) return;
+              showSnackbar(context);
+            });
+          },
+          child: const Icon(Icons.save_as_outlined),
+        ),
       ),
     );
   }
@@ -192,6 +196,8 @@ class _SizeSelector extends StatelessWidget {
       }).toList(),
       selected: Set.from(selectedSizes),
       onSelectionChanged: (newSelection) {
+        // QUITAR EL TECLADO AL NO USARLO MAS, (HACIENDO CLICK AFUERA)
+        FocusScope.of(context).unfocus();
         // ESTO SE HACE PORQUE ES UN SET DE DATOS, NO UNA LISTA
         // SOLO SE CONVIERTE A UN LISTADO DE STRING
         // CON ESTO EMITIREMOS UN LISTADO DE STRING
@@ -232,6 +238,8 @@ class _GenderSelector extends StatelessWidget {
         }).toList(),
         selected: {selectedGender},
         onSelectionChanged: (newSelection) {
+          // QUITAR EL TECLADO AL NO USARLO MAS, (HACIENDO CLICK AFUERA)
+          FocusScope.of(context).unfocus();
           onGenderChanged(newSelection.first);
           //print(newSelection);
         },
