@@ -12,8 +12,11 @@ final productFormProvider = StateNotifierProvider.autoDispose
   // createUpdateCallback ES ES PARA ACTUALIZAR LOS CAMBIOS
   // EN LA PANTALLA DE TODOS LOS PRODUCTOS
   // TODO: createUpdateCallback
+  //final createUpdateCallback =
+  //  ref.watch(productsRepositoryProvider).createUpdateProduct;
+  // AHORA LLAMAMOS LA FUNCION DESDE PRODUCTS PROVIDER
   final createUpdateCallback =
-      ref.watch(productsRepositoryProvider).createUpdateProduct;
+      ref.watch(productsProvider.notifier).createOrUpdateProduct;
   return ProductFormNotifier(
       product: product,
       // TODO: onSubmitCallback: createUpdateCallback
@@ -22,7 +25,7 @@ final productFormProvider = StateNotifierProvider.autoDispose
 
 // MANTENER ESTADO Y SUS CAMBIOS Y EMITE LA DATA QUE TIENE QUE SER PROCESADA
 class ProductFormNotifier extends StateNotifier<ProductFormState> {
-  final Future<Product> Function(Map<String, dynamic> productLike)?
+  final Future<bool> Function(Map<String, dynamic> productLike)?
       onSubmitCallback;
   ProductFormNotifier({this.onSubmitCallback, required Product product})
       : super(ProductFormState(
@@ -63,8 +66,8 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
 
     // TODO: LLAMAR ONSUBMIT CALLBACK
     try {
-      await onSubmitCallback!(productLike);
-      return true;
+      return await onSubmitCallback!(productLike);
+      //return true;
     } catch (e) {
       return false;
     }
