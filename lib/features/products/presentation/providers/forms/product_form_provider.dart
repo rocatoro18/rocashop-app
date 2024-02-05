@@ -54,7 +54,7 @@ class ProductFormNotifier extends StateNotifier<ProductFormState> {
               image.replaceAll('${Environment.apiUrl}/files/product/', ''))
           .toList()
     };
-    print(productLike);
+    //print(productLike);
     return true;
 
     // TODO: LLAMAR ONSUBMIT CALLBACK
